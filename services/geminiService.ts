@@ -2,6 +2,13 @@ import { GoogleGenAI, Modality } from "@google/genai";
 import { UserPreferences, Product, SkinType, DeliveryOption } from '../types';
 import { Language } from '../App';
 
+interface ImportMetaEnv {
+  readonly VITE_API_KEY: string;
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}
 
 const getSystemInstruction = (preferences: UserPreferences, promptText: string, language: Language): string => {
   if (language === 'ko') {
