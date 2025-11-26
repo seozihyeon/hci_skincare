@@ -18,13 +18,18 @@ export interface UserPreferences {
   delivery: DeliveryOption;
 }
 
+export interface LocalizedText {
+  en: string;
+  ko: string;
+}
+
 export interface Product {
-  productName: string;
-  brand: string;
+  productName: LocalizedText;
+  brand: LocalizedText;
   price: number;
   imageUrl: string;
   productUrl: string;
-  explanation: string;
+  explanation: LocalizedText;
 }
 
 interface ImportMetaEnv {

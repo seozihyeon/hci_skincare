@@ -15,7 +15,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, language }) =
       <div className="relative">
         <img 
           src={product.imageUrl} 
-          alt={product.productName} 
+          alt={product.productName[language]} 
           className="w-full h-48 object-cover" 
           onError={(e) => { e.currentTarget.src = 'https://picsum.photos/300/300' }}
         />
@@ -24,11 +24,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, language }) =
         </div>
       </div>
       <div className="p-4 flex flex-col flex-grow">
-        <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wide">{product.brand}</h3>
-        <h4 className="text-md font-semibold text-gray-800 flex-grow mt-1">{product.productName}</h4>
+        <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wide">{product.brand[language]}</h3>
+        <h4 className="text-md font-semibold text-gray-800 flex-grow mt-1">{product.productName[language]}</h4>
         <div className="mt-3 bg-pink-50 text-pink-800 p-3 rounded-lg text-sm border-l-4 border-pink-200">
           <p className="font-semibold">{translations.productCardReason[language]}:</p>
-          <p>{product.explanation}</p>
+          <p>{product.explanation[language]}</p>
         </div>
       </div>
       <div className="p-4 pt-0 mt-auto">

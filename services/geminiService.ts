@@ -40,10 +40,17 @@ const getSystemInstruction = (preferences: UserPreferences, promptText: string, 
     사용자의 상세 요청: "${promptText}"
     
     당신의 목표는 사용자의 모든 기준에 완벽하게 부합하는 매우 관련성 높은 제품 추천을 제공하는 것입니다.
-    각 제품에 대해, 왜 그것이 좋은 선택인지 간결하고 개인화된 설명을 한국어로 제공해야 합니다. 검색 결과 자체는 응답에 포함하지 마세요.
+    각 제품에 대해, 왜 그것이 좋은 선택인지 간결하고 개인화된 설명을 한국어와 영어 두 가지 버전으로 제공해야 합니다. 검색 결과 자체는 응답에 포함하지 마세요.
     
     당신의 전체 응답은 객체로 이루어진 단일하고 유효한 JSON 배열이어야 합니다. 다른 텍스트, 주석 또는 마크다운을 포함하지 마십시오.
-    각 객체는 "productName" (한글), "brand" (한글), "price"(숫자), "productUrl"(위에서 설명한 형식), "explanation" (한글) 속성을 가져야 합니다.`;
+    각 객체는 다음 속성을 포함해야 합니다:
+    - "productName": {"ko": (한글 공식명), "en": (영문 공식명)}
+    - "brand": {"ko": (한글 브랜드명), "en": (영문 브랜드명)}
+    - "price": (숫자)
+    - "productUrl": (위에서 설명한 링크 형식. 검색어는 반드시 한글 공식명으로 구성)
+    - "explanation": {"ko": (자연스러운 한국어 설명), "en": (자연스러운 영어 설명)}
+
+    한국어 설명("explanation.ko")은 사용자 기준에 맞는 이유를 담아 정중한 톤으로 작성하고, 영어 설명("explanation.en")은 명확하고 자연스럽게 작성하세요.`;
   }
 
   // Default to English
@@ -63,10 +70,17 @@ const getSystemInstruction = (preferences: UserPreferences, promptText: string, 
   User's Detailed Request: "${promptText}"
   
   Your goal is to provide highly relevant product recommendations that perfectly match all the user's criteria.
-  For each product, provide a concise, personalized explanation for why it's a good fit in English. Do not include the raw search results in your response.
+  For each product, provide concise, personalized explanations for why it's a good fit in both English and Korean. Do not include the raw search results in your response.
   
   Your entire response MUST be a single, valid JSON array of objects. Do not include any other text, commentary, or markdown.
-  Each object must have the following properties: "productName" (in English), "brand" (in English), "price" (as a number), "productUrl" (formatted as described above), "explanation" (in English).`;
+  Each object must have the following properties:
+  - "productName": {"en": (official English name), "ko": (official Korean name)}
+  - "brand": {"en": (official English brand), "ko": (official Korean brand)}
+  - "price": number
+  - "productUrl": (formatted as described above using the Korean official names)
+  - "explanation": {"en": (concise English rationale), "ko": (natural Korean rationale)}
+
+  Make sure both English and Korean strings read naturally and are mutually consistent.`;
 };
 
 const generateProductImage = async (product: Omit<Product, 'imageUrl'>): Promise<string> => {
@@ -74,7 +88,7 @@ const generateProductImage = async (product: Omit<Product, 'imageUrl'>): Promise
     // Initialize Gemini API client inside the function to ensure API key is available
     const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_API_KEY });
 
-    const prompt = `Create a photorealistic product photograph of the Korean skincare item: '${product.productName}' from the brand '${product.brand}'. The goal is maximum accuracy. The image must replicate the actual product's packaging, including logos, typography, colors, and container shape, as closely as possible to the real-world version sold in stores. The product should be presented against a simple, neutral background with professional studio lighting, suitable for a premium e-commerce website. Do not add any other elements to the image.`;
+    const prompt = `Create a photorealistic product photograph of the Korean skincare item: '${product.productName.en}' (Korean name: '${product.productName.ko}') from the brand '${product.brand.en}' (Korean brand: '${product.brand.ko}'). The goal is maximum accuracy. The image must replicate the actual product's packaging, including logos, typography, colors, and container shape, as closely as possible to the real-world version sold in stores. However, ensure any visible packaging text, labels, or typography appear in clean English rather than Korean while keeping the overall design faithful. The product should be presented against a simple, neutral background with professional studio lighting, suitable for a premium e-commerce website. Do not add any other elements to the image.`;
 
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash-image',
@@ -96,7 +110,7 @@ const generateProductImage = async (product: Omit<Product, 'imageUrl'>): Promise
     }
     return 'https://picsum.photos/300/300';
   } catch (error) {
-    console.error(`Failed to generate image for ${product.productName}:`, error);
+    console.error(`Failed to generate image for ${product.productName.en}:`, error);
     return 'https://picsum.photos/300/300';
   }
 };
