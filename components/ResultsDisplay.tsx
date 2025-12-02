@@ -5,7 +5,6 @@ import { Loader } from './Loader';
 import { translations } from '../lib/translations';
 import { Language } from '../App';
 
-
 interface ResultsDisplayProps {
   isLoading: boolean;
   error: string | null;
