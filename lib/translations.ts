@@ -36,7 +36,7 @@ export const translations = {
     ko: '피해야 할 성분 (쉼표로 구분)',
   },
   ingredientsToAvoidPlaceholder: {
-    en: 'e.g., Tee Tree Oil, Salicyclic Acid, specific dyes...',
+    en: 'e.g., Tea Tree Oil, Salicyclic Acid, specific dyes...',
     ko: '예: 티트리 오일, 살리실산, 특정 색소',
   },
   promptLabel: {
