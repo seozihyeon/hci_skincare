@@ -27,16 +27,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, language }) =
         <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wide">{product.brand[language]}</h3>
         <h4 className="text-md font-semibold text-gray-800 flex-grow mt-1">{product.productName[language]}</h4>
         {product.keyIngredients && product.keyIngredients.length > 0 && (
-          <div className="mt-2 flex flex-wrap gap-2">
+          <p className="mt-2 text-sm text-gray-600">
             {product.keyIngredients.map((ingredient, index) => (
-              <span
-                key={index}
-                className="px-3 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-full border border-gray-300"
-              >
+              <span key={index}>
                 {ingredient[language]}
+                {index < product.keyIngredients.length - 1 && ', '}
               </span>
             ))}
-          </div>
+          </p>
         )}
         <div className="mt-3 bg-pink-50 text-pink-800 p-3 rounded-lg text-sm border-l-4 border-pink-200">
           <p className="font-semibold">{translations.productCardReason[language]}:</p>
