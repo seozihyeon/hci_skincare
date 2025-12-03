@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Product } from '../types';
 import { ProductCard } from './ProductCard';
 import { Loader } from './Loader';
@@ -21,11 +21,40 @@ const InitialState: React.FC<{language: Language}> = ({ language }) => (
 );
 
 export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ isLoading, error, recommendations, language }) => {
+  const [elapsedTime, setElapsedTime] = useState(0);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+    if (isLoading) {
+      setElapsedTime(0);
+      interval = setInterval(() => {
+        setElapsedTime(prev => prev + 1);
+      }, 1000);
+    } else {
+      setElapsedTime(0);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isLoading]);
+
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    if (mins > 0) {
+      return `${mins}${language === 'ko' ? '분' : 'm'} ${secs}${language === 'ko' ? '초' : 's'}`;
+    }
+    return `${secs}${language === 'ko' ? '초' : 's'}`;
+  };
+
   if (isLoading) {
     return (
         <div className="text-center py-16">
             <Loader />
-            <p className="text-lg text-pink-700 mt-4 animate-pulse">{translations.loadingMessage[language]}</p>
+            <p className="text-lg text-pink-700 mt-4">{translations.loadingMessage[language]}</p>
+            <p className="text-sm text-gray-500 mt-2 font-mono">
+              {elapsedTime > 0 && `${formatTime(elapsedTime)} ${translations.loadingElapsed[language]}`}
+            </p>
         </div>
     );
   }
