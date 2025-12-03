@@ -64,8 +64,8 @@ export const translations = {
     ko: '위의 양식을 작성하시면 AI 쇼퍼가 당신에게 완벽한 K-뷰티 제품을 찾아드립니다!',
   },
   loadingMessage: {
-    en: 'We are working hard to find the perfect products for you! Please wait 1 minute.',
-    ko: '딱 맞는 상품을 열심히 찾는 중이에요! 1분만 기다려주세요.',
+    en: 'We are working hard to find the perfect products for you! This may take up to 2 minutes.',
+    ko: '딱 맞는 상품을 열심히 찾는 중이에요! 최대 2분까지 소요될 수 있어요.',
   },
   loadingTimeNote: {
     en: 'This may take up to 2 minutes',
@@ -77,7 +77,7 @@ export const translations = {
   },
   errorTitle: {
     en: 'Oops! Something went wrong.',
-    ko: 'おっと！何か問題が発生しました。',
+    ko: '오류가 발생했습니다.',
   },
   errorMessage: {
       en: "Sorry, we couldn't find products at this time. Please try adjusting your search or try again later.",
