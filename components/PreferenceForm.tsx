@@ -12,7 +12,13 @@ interface PreferenceFormProps {
 export const PreferenceForm: React.FC<PreferenceFormProps> = ({ preferences, setPreferences, language }) => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setPreferences(prev => ({ ...prev, [name]: name === 'age' || name === 'budget' ? Number(value) : value }));
+    if (name === 'age') {
+      setPreferences(prev => ({ ...prev, age: value === '' ? '' : Number(value) }));
+    } else if (name === 'budget') {
+      setPreferences(prev => ({ ...prev, budget: Number(value) }));
+    } else {
+      setPreferences(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleRadioChange = (name: string, value: string) => {
@@ -83,7 +89,7 @@ export const PreferenceForm: React.FC<PreferenceFormProps> = ({ preferences, set
             type="number"
             id="age"
             name="age"
-            value={preferences.age}
+            value={preferences.age === 0 || preferences.age === '' ? '' : preferences.age}
             onChange={handleInputChange}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-pink-500 focus:border-pink-500 bg-pink-50"
             min="10"
