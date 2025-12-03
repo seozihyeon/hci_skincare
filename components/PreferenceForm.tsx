@@ -1,5 +1,5 @@
 import React from 'react';
-import { UserPreferences, SkinType, DeliveryOption } from '../types';
+import { UserPreferences, SkinType, DeliveryOption, SkinProblem } from '../types';
 import { translations } from '../lib/translations';
 import { Language } from '../App';
 
@@ -30,6 +30,30 @@ export const PreferenceForm: React.FC<PreferenceFormProps> = ({ preferences, set
       [DeliveryOption.Online]: { en: 'Online Delivery', ko: '온라인 배송' },
       [DeliveryOption.InStore]: { en: 'In-Store Pickup', ko: '매장 픽업' },
   }
+
+  const skinProblemTranslations = {
+    [SkinProblem.Acne]: { en: 'Acne', ko: '여드름' },
+    [SkinProblem.Redness]: { en: 'Redness', ko: '홍조' },
+    [SkinProblem.DrynessDehydration]: { en: 'Dryness / Dehydration', ko: '건조 / 탈수' },
+    [SkinProblem.Oiliness]: { en: 'Oiliness', ko: '유분' },
+    [SkinProblem.Sensitivity]: { en: 'Sensitivity', ko: '민감성' },
+    [SkinProblem.UnevenTone]: { en: 'Uneven Tone', ko: '톤 불균형' },
+    [SkinProblem.FineLinesWrinkles]: { en: 'Fine Lines / Wrinkles', ko: '주름 / 미세주름' },
+    [SkinProblem.LargePores]: { en: 'Large Pores', ko: '모공' },
+  };
+
+  const handleSkinProblemToggle = (problem: SkinProblem) => {
+    setPreferences(prev => {
+      const currentProblems = prev.skinProblems || [];
+      const isSelected = currentProblems.includes(problem);
+      return {
+        ...prev,
+        skinProblems: isSelected
+          ? currentProblems.filter(p => p !== problem)
+          : [...currentProblems, problem]
+      };
+    });
+  };
 
   return (
     <div className="space-y-6">
@@ -100,6 +124,29 @@ export const PreferenceForm: React.FC<PreferenceFormProps> = ({ preferences, set
         <div className="flex justify-between text-xs text-gray-500 mt-1">
           <span>5,000</span>
           <span>100,000</span>
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-lg font-semibold text-gray-700 mb-2">{translations.skinProblemsLabel[language]}</label>
+        <div className="grid grid-cols-3 gap-3">
+          {Object.values(SkinProblem).map((problem) => {
+            const isSelected = (preferences.skinProblems || []).includes(problem);
+            return (
+              <button
+                key={problem}
+                type="button"
+                onClick={() => handleSkinProblemToggle(problem)}
+                className={`px-4 py-2 text-sm rounded-full border-2 transition-colors duration-200 ${
+                  isSelected
+                    ? 'bg-pink-600 text-white border-pink-600'
+                    : 'bg-white text-gray-700 border-gray-300 hover:border-pink-400'
+                }`}
+              >
+                {skinProblemTranslations[problem][language]}
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>

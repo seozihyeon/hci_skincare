@@ -16,6 +16,8 @@ const App: React.FC = () => {
     age: 25,
     budget: 30000,
     delivery: DeliveryOption.Online,
+    ingredientsToAvoid: '',
+    skinProblems: [],
   });
   const [promptText, setPromptText] = useState<string>('');
   const [recommendations, setRecommendations] = useState<Product[] | null>(null);
@@ -27,7 +29,7 @@ const App: React.FC = () => {
     setError(null);
     setRecommendations(null);
     try {
-      const results = await getRecommendations(preferences, promptText, language);
+      const results = await getRecommendations(preferences, promptText, language, preferences.ingredientsToAvoid);
       setRecommendations(results);
     } catch (err) {
       setError(translations.errorMessage[language]);
@@ -51,7 +53,13 @@ const App: React.FC = () => {
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
             <PreferenceForm preferences={preferences} setPreferences={setPreferences} language={language}/>
-            <PromptInput promptText={promptText} setPromptText={setPromptText} language={language}/>
+            <PromptInput 
+              promptText={promptText} 
+              setPromptText={setPromptText} 
+              ingredientsToAvoid={preferences.ingredientsToAvoid}
+              setIngredientsToAvoid={(value) => setPreferences(prev => ({ ...prev, ingredientsToAvoid: value }))}
+              language={language}
+            />
           </div>
 
           <div className="text-center">

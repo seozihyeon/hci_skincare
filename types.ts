@@ -11,11 +11,24 @@ export enum DeliveryOption {
   InStore = 'In-Store Pickup',
 }
 
+export enum SkinProblem {
+  Acne = 'Acne',
+  Redness = 'Redness',
+  DrynessDehydration = 'Dryness / Dehydration',
+  Oiliness = 'Oiliness',
+  Sensitivity = 'Sensitivity',
+  UnevenTone = 'Uneven Tone',
+  FineLinesWrinkles = 'Fine Lines / Wrinkles',
+  LargePores = 'Large Pores',
+}
+
 export interface UserPreferences {
   skinType: SkinType;
   age: number;
   budget: number;
   delivery: DeliveryOption;
+  ingredientsToAvoid: string;
+  skinProblems: SkinProblem[];
 }
 
 export interface LocalizedText {
@@ -30,6 +43,7 @@ export interface Product {
   imageUrl: string;
   productUrl: string;
   explanation: LocalizedText;
+  keyIngredients: LocalizedText[];
 }
 
 interface ImportMetaEnv {

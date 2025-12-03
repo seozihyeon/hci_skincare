@@ -27,6 +27,18 @@ export const translations = {
     en: 'Max Budget',
     ko: '최대 예산',
   },
+  skinProblemsLabel: {
+    en: 'Skin Problems',
+    ko: '피부 고민',
+  },
+  ingredientsToAvoidLabel: {
+    en: 'Ingredients to Avoid (comma-separated)',
+    ko: '피해야 할 성분 (쉼표로 구분)',
+  },
+  ingredientsToAvoidPlaceholder: {
+    en: 'e.g., Tee Tree Oil, Salicyclic Acid, specific dyes...',
+    ko: '예: 티트리 오일, 살리실산, 특정 색소',
+  },
   promptLabel: {
     en: 'Detailed Request',
     ko: '상세 요청',

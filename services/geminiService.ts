@@ -1,5 +1,5 @@
 import { GoogleGenAI, Modality } from "@google/genai";
-import { UserPreferences, Product, SkinType, DeliveryOption } from '../types';
+import { UserPreferences, Product, SkinType, DeliveryOption, SkinProblem, LocalizedText } from '../types';
 import { Language } from '../App';
 
 interface ImportMetaEnv {
@@ -10,7 +10,7 @@ interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
 
-const getSystemInstruction = (preferences: UserPreferences, promptText: string, language: Language): string => {
+const getSystemInstruction = (preferences: UserPreferences, promptText: string, language: Language, ingredientsToAvoid: string): string => {
   if (language === 'ko') {
     const skinTypeTranslations: Record<SkinType, string> = {
       [SkinType.Dry]: '건성',
@@ -22,6 +22,17 @@ const getSystemInstruction = (preferences: UserPreferences, promptText: string, 
     const deliveryOptionTranslations: Record<DeliveryOption, string> = {
       [DeliveryOption.Online]: '온라인 배송',
       [DeliveryOption.InStore]: '매장 픽업',
+    };
+
+    const skinProblemTranslations: Record<SkinProblem, string> = {
+      [SkinProblem.Acne]: '여드름',
+      [SkinProblem.Redness]: '홍조',
+      [SkinProblem.DrynessDehydration]: '건조 / 탈수',
+      [SkinProblem.Oiliness]: '유분',
+      [SkinProblem.Sensitivity]: '민감성',
+      [SkinProblem.UnevenTone]: '톤 불균형',
+      [SkinProblem.FineLinesWrinkles]: '주름 / 미세주름',
+      [SkinProblem.LargePores]: '모공',
     };
 
     return `당신은 JSON API 엔드포인트입니다. 당신의 유일한 목적은 전문 K-뷰티 퍼스널 쇼퍼 역할을 하여 단일 JSON 배열을 반환하는 것입니다.
@@ -36,8 +47,13 @@ const getSystemInstruction = (preferences: UserPreferences, promptText: string, 
     - 나이: ${preferences.age}
     - 최대 예산: ${preferences.budget.toLocaleString()} 원
     - 선호 배송 방법: ${deliveryOptionTranslations[preferences.delivery]}
+    ${ingredientsToAvoid.trim() ? `- 피해야 할 성분: ${ingredientsToAvoid}` : ''}
+    ${preferences.skinProblems && preferences.skinProblems.length > 0 ? `- 피부 고민: ${preferences.skinProblems.map(p => skinProblemTranslations[p]).join(', ')}` : ''}
     
     사용자의 상세 요청: "${promptText}"
+    
+    ${ingredientsToAvoid.trim() ? `**중요: 반드시 피해야 할 성분 목록을 확인하세요. 추천하는 모든 제품은 이 성분들을 포함하지 않아야 합니다. 성분 목록: ${ingredientsToAvoid}` : ''}
+    ${preferences.skinProblems && preferences.skinProblems.length > 0 ? `**중요: 사용자의 피부 고민을 고려하여 제품을 추천하세요. 추천하는 제품은 다음 피부 고민에 도움이 되는 제품이어야 합니다: ${preferences.skinProblems.map(p => skinProblemTranslations[p]).join(', ')}` : ''}
     
     당신의 목표는 사용자의 모든 기준에 완벽하게 부합하는 매우 관련성 높은 제품 추천을 제공하는 것입니다.
     각 제품에 대해, 왜 그것이 좋은 선택인지 간결하고 개인화된 설명을 한국어와 영어 두 가지 버전으로 제공해야 합니다. 검색 결과 자체는 응답에 포함하지 마세요.
@@ -48,6 +64,7 @@ const getSystemInstruction = (preferences: UserPreferences, promptText: string, 
     - "brand": {"ko": (한글 브랜드명), "en": (영문 브랜드명)}
     - "price": (숫자)
     - "productUrl": (위에서 설명한 링크 형식. 검색어는 반드시 한글 공식명으로 구성)
+    - "keyIngredients": (주요 성분 배열, 최대 3개, 각 성분은 {"en": (영문 성분명), "ko": (한글 성분명)} 형태, 예: [{"en": "Niacinamide", "ko": "나이아신아마이드"}, {"en": "Hyaluronic Acid", "ko": "히알루론산"}, {"en": "Ceramide", "ko": "세라마이드"}])
     - "explanation": {"ko": (자연스러운 한국어 설명), "en": (자연스러운 영어 설명)}
 
     한국어 설명("explanation.ko")은 사용자 기준에 맞는 이유를 담아 정중한 톤으로 작성하고, 영어 설명("explanation.en")은 명확하고 자연스럽게 작성하세요.`;
@@ -66,8 +83,13 @@ const getSystemInstruction = (preferences: UserPreferences, promptText: string, 
   - Age: ${preferences.age}
   - Maximum Budget: ${preferences.budget.toLocaleString()} KRW
   - Preferred Delivery: ${preferences.delivery}
+  ${ingredientsToAvoid.trim() ? `- Ingredients to Avoid: ${ingredientsToAvoid}` : ''}
+  ${preferences.skinProblems && preferences.skinProblems.length > 0 ? `- Skin Problems: ${preferences.skinProblems.join(', ')}` : ''}
   
   User's Detailed Request: "${promptText}"
+  
+  ${ingredientsToAvoid.trim() ? `**CRITICAL: You MUST check the ingredients to avoid list. All recommended products MUST NOT contain any of these ingredients. Ingredients to avoid: ${ingredientsToAvoid}` : ''}
+  ${preferences.skinProblems && preferences.skinProblems.length > 0 ? `**CRITICAL: You MUST consider the user's skin problems when recommending products. All recommended products should specifically address or help with these skin concerns: ${preferences.skinProblems.join(', ')}` : ''}
   
   Your goal is to provide highly relevant product recommendations that perfectly match all the user's criteria.
   For each product, provide concise, personalized explanations for why it's a good fit in both English and Korean. Do not include the raw search results in your response.
@@ -78,6 +100,7 @@ const getSystemInstruction = (preferences: UserPreferences, promptText: string, 
   - "brand": {"en": (official English brand), "ko": (official Korean brand)}
   - "price": number
   - "productUrl": (formatted as described above using the Korean official names)
+  - "keyIngredients": (array of up to 3 key ingredients, each ingredient should be {"en": (English name), "ko": (Korean name)}, e.g., [{"en": "Niacinamide", "ko": "나이아신아마이드"}, {"en": "Hyaluronic Acid", "ko": "히알루론산"}, {"en": "Ceramide", "ko": "세라마이드"}])
   - "explanation": {"en": (concise English rationale), "ko": (natural Korean rationale)}
 
   Make sure both English and Korean strings read naturally and are mutually consistent.`;
@@ -118,7 +141,7 @@ const generateProductImage = async (product: Omit<Product, 'imageUrl'>): Promise
 /**
  * Gets K-Beauty recommendations from the Gemini API.
  */
-export const getRecommendations = async (preferences: UserPreferences, promptText: string, language: Language): Promise<Product[]> => {
+export const getRecommendations = async (preferences: UserPreferences, promptText: string, language: Language, ingredientsToAvoid: string): Promise<Product[]> => {
   const userInstruction = language === 'ko'
     ? "시스템 지침에 제공된 사용자 프로필과 요청을 기반으로 상위 5개의 k-뷰티 제품을 찾아주세요. JSON 배열만으로 응답해주세요."
     : "Find the top 5 k-beauty products based on the user profile and request provided in the system instruction. Respond with only the JSON array.";
@@ -132,7 +155,7 @@ export const getRecommendations = async (preferences: UserPreferences, promptTex
       model: "gemini-2.5-flash",
       contents: userInstruction,
       config: {
-        systemInstruction: getSystemInstruction(preferences, promptText, language),
+        systemInstruction: getSystemInstruction(preferences, promptText, language, ingredientsToAvoid),
         tools: [{ googleSearch: {} }],
       },
     });
@@ -173,8 +196,21 @@ export const getRecommendations = async (preferences: UserPreferences, promptTex
 
     const productsWithImages: Product[] = [];
     for (const product of productsWithoutImages) {
+      // Ensure keyIngredients exists and is an array, limit to 3, and validate format
+      let keyIngredients: LocalizedText[] = [];
+      if (Array.isArray(product.keyIngredients)) {
+        keyIngredients = product.keyIngredients.slice(0, 3).map((ing: any) => {
+          // If it's already a LocalizedText object, use it; otherwise convert
+          if (typeof ing === 'object' && ing !== null && 'en' in ing && 'ko' in ing) {
+            return { en: ing.en, ko: ing.ko };
+          }
+          // Fallback: if it's a string, use it for both languages
+          const ingredientStr = typeof ing === 'string' ? ing : String(ing);
+          return { en: ingredientStr, ko: ingredientStr };
+        });
+      }
       const imageUrl = await generateProductImage(product);
-      productsWithImages.push({ ...product, imageUrl });
+      productsWithImages.push({ ...product, keyIngredients, imageUrl });
     }
 
     return productsWithImages;

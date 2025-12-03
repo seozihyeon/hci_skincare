@@ -5,24 +5,42 @@ import { Language } from '../App';
 interface PromptInputProps {
   promptText: string;
   setPromptText: (text: string) => void;
+  ingredientsToAvoid: string;
+  setIngredientsToAvoid: (text: string) => void;
   language: Language;
 }
 
-export const PromptInput: React.FC<PromptInputProps> = ({ promptText, setPromptText, language }) => {
+export const PromptInput: React.FC<PromptInputProps> = ({ promptText, setPromptText, ingredientsToAvoid, setIngredientsToAvoid, language }) => {
   return (
-    <div>
-      <label htmlFor="prompt" className="block text-lg font-semibold text-gray-700 mb-2">
-        {translations.promptLabel[language]}
-      </label>
-      <textarea
-        id="prompt"
-        name="prompt"
-        rows={8}
-        value={promptText}
-        onChange={(e) => setPromptText(e.target.value)}
-        className="w-full p-4 border border-gray-300 rounded-lg focus:ring-pink-500 focus:border-pink-500 transition-shadow duration-200 shadow-sm bg-pink-50"
-        placeholder={translations.promptPlaceholder[language]}
-      />
+    <div className="space-y-6">
+      <div>
+        <label htmlFor="ingredientsToAvoid" className="block text-lg font-semibold text-gray-700 mb-2">
+          {translations.ingredientsToAvoidLabel[language]}
+        </label>
+        <textarea
+          id="ingredientsToAvoid"
+          name="ingredientsToAvoid"
+          rows={3}
+          value={ingredientsToAvoid}
+          onChange={(e) => setIngredientsToAvoid(e.target.value)}
+          className="w-full p-4 border border-gray-300 rounded-lg focus:ring-pink-500 focus:border-pink-500 transition-shadow duration-200 shadow-sm bg-pink-50"
+          placeholder={translations.ingredientsToAvoidPlaceholder[language]}
+        />
+      </div>
+      <div>
+        <label htmlFor="prompt" className="block text-lg font-semibold text-gray-700 mb-2">
+          {translations.promptLabel[language]}
+        </label>
+        <textarea
+          id="prompt"
+          name="prompt"
+          rows={8}
+          value={promptText}
+          onChange={(e) => setPromptText(e.target.value)}
+          className="w-full p-4 border border-gray-300 rounded-lg focus:ring-pink-500 focus:border-pink-500 transition-shadow duration-200 shadow-sm bg-pink-50"
+          placeholder={translations.promptPlaceholder[language]}
+        />
+      </div>
     </div>
   );
 };
